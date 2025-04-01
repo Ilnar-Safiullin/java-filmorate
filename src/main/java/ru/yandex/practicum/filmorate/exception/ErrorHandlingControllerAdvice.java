@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-class ErrorHandlingControllerAdvice {
+public class ErrorHandlingControllerAdvice {
 
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
