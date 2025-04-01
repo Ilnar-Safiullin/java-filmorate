@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
 public class NotBeforeSpecificDateValidator implements ConstraintValidator<NotBeforeSpecificDate, LocalDate> {
-    private LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
+    private final LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
 
     @Override
     public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
