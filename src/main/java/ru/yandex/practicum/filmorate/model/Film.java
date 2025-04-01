@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
+
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeSpecificDate;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 @Data
@@ -13,7 +13,6 @@ public class Film {
     private Integer id;
 
     @NotBlank(message = "Название не может быть пустым")
-    @NotEmpty
     private String name;
 
     @Size(max = 200, message = "Максимальная длина описания — 200 символов")
@@ -23,7 +22,7 @@ public class Film {
     private LocalDate releaseDate;
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
-    private Duration duration;
+    private int duration;
 }
 
 

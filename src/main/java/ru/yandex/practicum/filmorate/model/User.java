@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.NoWhitespace;
@@ -11,17 +12,16 @@ public class User {
 
     private Integer id;
 
-    @Email(message = "Электронная почта должна быть корректной") // Почему не работает эта аннотация? он добавляет пользователя если даже не указан <@> в поле email
+    @Email(message = "Электронная почта должна быть корректной")
     @NotBlank(message = "Электронная почта не может быть пустой")
     private String email;
 
-    @NotEmpty(message = "Логин не может быть пустым")
-    @NoWhitespace
+    @NoWhitespace(message = "логин не может быть пустым и содержать пробелы")
     private String login;
 
     private String name;
 
-    @PastOrPresent(message = "Дата рождения не может быть в будущем") // То же не работает почему то, добавляет пользователя с полем birthday из будущего
-    @NotNull(message = "Дата рождения обязательна")
+    @PastOrPresent
+    @NotNull
     private LocalDate birthday;
 }

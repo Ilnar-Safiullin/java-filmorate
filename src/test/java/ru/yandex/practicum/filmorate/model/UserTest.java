@@ -1,5 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
 public class UserTest {
-    //незнаю какой тест тут добавить
+
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    Validator validator = factory.getValidator();
+
+    User user = new User();
+
 }

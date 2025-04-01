@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -11,12 +10,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private Integer getNextId() {
         return users.keySet()
@@ -56,7 +55,7 @@ public class UserController {
             log.warn("Ошибка добавления пользователя: пользователь с таким ID уже есть: {}", user.getId());
             throw new ValidationException("Пользователь с таким ID уже есть");
         }
-        if (user.getName().isBlank()) {
+        if (user.getName() == null) {
             log.info("У пользователя нет имени, будет использован Логин {}", user.getLogin());
             user.setName(user.getLogin());
         }
