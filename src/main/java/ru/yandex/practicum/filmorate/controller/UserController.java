@@ -1,21 +1,30 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("/users")
 public class UserController {
+
+    private final Validator validator;
+
+    public UserController(Validator validator) {
+        this.validator = validator;
+    }
 
     private final Map<Integer, User> users = new HashMap<>();
 
@@ -33,7 +42,7 @@ public class UserController {
         return users.values();
     }
 
-    @Validated
+
     @PutMapping
     public User update(@RequestBody User updatedUser) {
         log.info("Обновление пользователя с ID: {}", updatedUser.getId());
@@ -46,21 +55,38 @@ public class UserController {
             log.info("У пользователя нет имени, будет использован Логин {}", updatedUser.getLogin());
             updatedUser.setName(updatedUser.getLogin());
         }
-        if (updatedUser.getEmail() != null && !updatedUser.getEmail().isBlank() && updatedUser.getEmail().contains("@")) {
-            existingUser.setEmail(updatedUser.getEmail());
+        if (updatedUser.getLogin() != null) {
+            Set<ConstraintViolation<User>> violations = validator.validateProperty(updatedUser, "login");
+            if (!violations.isEmpty()) {
+                for (ConstraintViolation<User> violation : violations) {
+                    log.warn("Ошибка валидации логина: {}", violation.getMessage());
+                }
+            } else {
+                existingUser.setLogin(updatedUser.getLogin());
+            }
         }
-        if (updatedUser.getLogin() != null && updatedUser.getLogin().contains(" ")) {
-            existingUser.setLogin(updatedUser.getLogin());
+        if (updatedUser.getEmail() != null) {
+            Set<ConstraintViolation<User>> violations = validator.validateProperty(updatedUser, "email");
+            if (!violations.isEmpty()) {
+                for (ConstraintViolation<User> violation : violations) {
+                    log.warn("Ошибка валидации электронной почты: {}", violation.getMessage());
+                }
+            } else {
+                existingUser.setEmail(updatedUser.getEmail());
+            }
         }
-        if (updatedUser.getBirthday() != null && updatedUser.getBirthday().isBefore(LocalDate.of(1895, 12, 28))) {
-            existingUser.setBirthday(updatedUser.getBirthday());
+        if (updatedUser.getBirthday() != null) {
+            Set<ConstraintViolation<User>> violations = validator.validateProperty(updatedUser, "birthday");
+            if (!violations.isEmpty()) {
+                for (ConstraintViolation<User> violation : violations) {
+                    log.warn("Ошибка валидации даты рождения: {}", violation.getMessage());
+                }
+            } else {
+                existingUser.setBirthday(updatedUser.getBirthday());
+            }
         }
         log.info("Пользователь успешно обновлен: {}", updatedUser);
-        return updatedUser;
-        /*
-        я не писал log.info и оставил магическое число в LocalDate потомучто наверное не верно сделал
-        Прям как валидировать внутри не понял из статьи и нейросетей. Может вернем как предыдущий коммит был? Симпатичнее было ато
-         */
+        return existingUser;
     }
 
     @PostMapping
@@ -80,3 +106,4 @@ public class UserController {
         return user;
     }
 }
+
