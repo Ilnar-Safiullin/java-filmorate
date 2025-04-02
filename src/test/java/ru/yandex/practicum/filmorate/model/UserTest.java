@@ -21,7 +21,7 @@ public class UserTest {
     }
 
     @Test
-    void ValidationTest() {
+    void validationTest() {
         User user = new User(1, "emailmail.ru", "log in", "name", LocalDate.now().plusDays(1));
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
@@ -34,7 +34,7 @@ public class UserTest {
     }
 
     @Test
-    void ValidationNotNulField() {
+    void validationNotNulField() {
         User user = new User(1, null, "login", "name", null);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
@@ -50,4 +50,5 @@ public class UserTest {
 User user = new User();
 user.setId(1); - но не дает вызвать ни один сеттер, просто красным горит. Курратор молчит как всегда. Пошел поэтому
 через конструктор
+Может они не работали потомучто у меня не было конструктора? Сейчас сделал конструктор и начали работать
  */

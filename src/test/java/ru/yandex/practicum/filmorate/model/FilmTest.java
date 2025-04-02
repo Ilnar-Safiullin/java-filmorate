@@ -21,7 +21,7 @@ public class FilmTest {
     }
 
     @Test
-    void ValidationTest() {
+    void validationTest() {
         String longString = "a".repeat(201);
         Film film = new Film(1, "", longString, LocalDate.of(1895, 12, 27), -1);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
