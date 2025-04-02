@@ -32,4 +32,10 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+/*
+    public @Email(message = "Электронная почта должна быть корректной") @NotBlank(message = "Электронная почта не может быть пустой") String getEmail() {
+        return email;
+    }
+    мне вот такие геттеры придется сделать наверное чтобы при обновлении валидировать эти поля из запроса
+ */
 }

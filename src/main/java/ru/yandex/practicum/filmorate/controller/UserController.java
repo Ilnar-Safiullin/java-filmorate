@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +33,9 @@ public class UserController {
         return users.values();
     }
 
+    @Validated
     @PutMapping
-    public User update(@Valid @RequestBody User updatedUser) {
+    public User update(@RequestBody User updatedUser) {
         log.info("Обновление пользователя с ID: {}", updatedUser.getId());
         User existingUser = users.get(updatedUser.getId());
         if (existingUser == null) {
@@ -43,9 +46,21 @@ public class UserController {
             log.info("У пользователя нет имени, будет использован Логин {}", updatedUser.getLogin());
             updatedUser.setName(updatedUser.getLogin());
         }
-        users.put(updatedUser.getId(), updatedUser);
+        if (updatedUser.getEmail() != null && !updatedUser.getEmail().isBlank() && updatedUser.getEmail().contains("@")) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getLogin() != null && updatedUser.getLogin().contains(" ")) {
+            existingUser.setLogin(updatedUser.getLogin());
+        }
+        if (updatedUser.getBirthday() != null && updatedUser.getBirthday().isBefore(LocalDate.of(1895, 12, 28))) {
+            existingUser.setBirthday(updatedUser.getBirthday());
+        }
         log.info("Пользователь успешно обновлен: {}", updatedUser);
         return updatedUser;
+        /*
+        я не писал log.info и оставил магическое число в LocalDate потомучто наверное не верно сделал
+        Прям как валидировать внутри не понял из статьи и нейросетей. Может вернем как предыдущий коммит был? Симпатичнее было ато
+         */
     }
 
     @PostMapping
