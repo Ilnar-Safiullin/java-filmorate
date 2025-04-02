@@ -21,7 +21,15 @@ public class User {
 
     private String name;
 
-    @PastOrPresent
-    @NotNull
+    @PastOrPresent(message = "Дата рождения не может быть из будущего")
+    @NotNull(message = "Дата рождения не может быть пустой")
     private LocalDate birthday;
+
+    public User(Integer id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
 }
