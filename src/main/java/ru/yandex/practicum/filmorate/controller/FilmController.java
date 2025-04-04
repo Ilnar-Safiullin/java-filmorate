@@ -3,13 +3,16 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.annotation.Marker;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/films")
@@ -32,20 +35,34 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film updatedFilm) {
+    @Validated(Marker.OnUpdate.class)
+    public Film update(@RequestBody @Valid Film updatedFilm) {
         log.info("Обновление фильма с ID: {}", updatedFilm.getId());
         Film existingFilm = films.get(updatedFilm.getId());
         if (existingFilm == null) {
             log.warn("Ошибка обновления фильма ID {} не найден", updatedFilm.getId());
             throw new ValidationException("Фильм с таким айди не найден");
         }
-        films.put(updatedFilm.getId(), updatedFilm);
-        log.info("Фильм успешно обновлен: {}", updatedFilm);
-        return updatedFilm;
+        if (updatedFilm.getName() != null) {
+            existingFilm.setName(updatedFilm.getName());
+        }
+        if (updatedFilm.getDescription() != null) {
+            existingFilm.setDescription(updatedFilm.getDescription());
+        }
+        if (updatedFilm.getReleaseDate() != null) {
+            existingFilm.setReleaseDate(updatedFilm.getReleaseDate());
+        }
+        if (updatedFilm.getDuration() != null) {
+            existingFilm.setDuration(updatedFilm.getDuration());
+        }
+        films.put(updatedFilm.getId(), existingFilm);
+        log.info("Фильм успешно обновлен: {}", existingFilm);
+        return existingFilm;
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
+    @Validated(Marker.OnCreate.class)
+    public Film addFilm(@RequestBody @Valid Film film) {
         log.info("Попытка добавления фильма: {}", film);
         if (films.containsKey(film.getId())) {
             log.warn("Ошибка добавления фильма: фильм с таким ID уже есть: {}", film.getId());
