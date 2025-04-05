@@ -93,7 +93,6 @@ public class FilmTest {
         Set<ConstraintViolation<Film>> violations = validator.validate(film, Marker.OnCreate.class);
         assertThat(violations).extracting(ConstraintViolation::getMessage)
                 .containsExactlyInAnyOrder(
-                        "Дата релиза обязательна",
-                        "дата релиза — не раньше 28 декабря 1895 года");
+                        "Дата релиза обязательна");
     }
 }

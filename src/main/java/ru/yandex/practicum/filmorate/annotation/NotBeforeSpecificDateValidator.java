@@ -10,10 +10,10 @@ public class NotBeforeSpecificDateValidator implements ConstraintValidator<NotBe
 
     @Override
     public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
-        if (releaseDate == null || releaseDate.isBefore(MIN_DATE)) {
-            return false;
-        }
-        return true;
+        if (releaseDate == null) {
+            return true; // Вот так вроде получилось Сергей). Тесты вроде прошли
+        }               // я посмотрел @PastOrPresent спрингбута и там написано у него "null значения считаются допустимы" Вот сделал также
+        return !releaseDate.isBefore(MIN_DATE);
     }
 }
 
