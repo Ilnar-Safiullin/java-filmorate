@@ -55,7 +55,6 @@ public class FilmController {
         if (updatedFilm.getDuration() != null) {
             existingFilm.setDuration(updatedFilm.getDuration());
         }
-        films.put(updatedFilm.getId(), existingFilm);
         log.info("Фильм успешно обновлен: {}", existingFilm);
         return existingFilm;
     }

@@ -80,4 +80,14 @@ public class UserTest {
                 .containsExactlyInAnyOrder(
                         "Дата рождения не может быть из будущего");
     }
+
+    @Test
+    void birthdayNullTest() {
+        User user = new User(1, "email@mail.ru", "login", "name", null);
+        Set<ConstraintViolation<User>> violations = validator.validate(user, Marker.OnCreate.class);
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+                .containsExactlyInAnyOrder(
+                        "Дата рождения не может быть пустой");
+    }
+
 }

@@ -87,17 +87,13 @@ public class FilmTest {
                         "Продолжительность фильма должна быть положительным числом");
     }
 
-    /*
     @Test
     void releaseDateNullTest() {
         Film film = new Film(1, "name", "description", null, 20);
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Marker.OnCreate.class, Marker.OnUpdate.class);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Marker.OnCreate.class);
         assertThat(violations).extracting(ConstraintViolation::getMessage)
                 .containsExactlyInAnyOrder(
-                        "Дата релиза обязательна");
+                        "Дата релиза обязательна",
+                        "дата релиза — не раньше 28 декабря 1895 года");
     }
-    не могу проверить на null поле releaseDate, выходит ошибка
-    jakarta.validation.ValidationException: HV000028: Unexpected exception during isValid call.
-    аналогично поле birthday у User
-     */
 }

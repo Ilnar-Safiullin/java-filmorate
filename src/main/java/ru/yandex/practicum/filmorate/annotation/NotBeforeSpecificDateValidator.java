@@ -10,6 +10,36 @@ public class NotBeforeSpecificDateValidator implements ConstraintValidator<NotBe
 
     @Override
     public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
-        return !releaseDate.isBefore(MIN_DATE);
+        if (releaseDate == null || releaseDate.isBefore(MIN_DATE)) {
+            return false;
+        }
+        return true;
     }
 }
+
+/*
+Пробывал вот такие варианты но не помогает. Вот к примеру аннотация @PastOrPresent близкая по смыслу, и если мы даем данные
+на обновления без этого поля в User. То корректно проходим по блоку обновления а не сваливаемся сразу как здесь с Film
+с полем releaseDate
+
+public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
+        try {
+            return !releaseDate.isBefore(MIN_DATE);
+        } catch (NullPointerException e) {
+            return false;
+
+ public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
+        return Optional.ofNullable(releaseDate)
+                .map(date -> !date.isBefore(MIN_DATE))
+                .orElse(false);
+    }
+
+    public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
+        if (releaseDate == null) {
+            releaseDate = LocalDate.MIN;
+        }
+        return !releaseDate.isBefore(MIN_DATE);
+    }
+
+    return !releaseDate.isBefore(MIN_DATE);
+ */
