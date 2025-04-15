@@ -9,3 +9,7 @@ public class FilmorateApplication {
 		SpringApplication.run(FilmorateApplication.class, args);
 	}
 }
+/*
+Сергей привет первый это первый пуш на проверку. Со встречи с куратором понял что тесты не нужно делать вроде как пока
+Хорошего тебе дня!)
+ */
