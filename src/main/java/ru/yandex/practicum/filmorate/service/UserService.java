@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,5 +54,25 @@ public class UserService {
         return commonFriends.stream()
                 .map(userStorage::getUserById)
                 .collect(Collectors.toSet());
+    }
+
+    public User addUser(User user) {
+        return userStorage.addUser(user);
+    }
+
+    public User updateUser(User updatedUser) {
+        return userStorage.updateUser(updatedUser);
+    }
+
+    public User getUserById(int id) {
+        return userStorage.getUserById(id);
+    }
+
+    public Collection<User> getAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public void deleteUser(int id) {
+        userStorage.deleteUser(id);
     }
 }

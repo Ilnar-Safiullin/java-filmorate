@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.annotation.Marker;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
+import java.util.List;
 
 
 @Validated
@@ -19,34 +19,32 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmStorage.getAllFilms();
+        return filmService.getAllFilms();
     }
 
     @GetMapping("/{filmId}")
     public Film findById(@PathVariable("postId") Integer filmId) {
-        return filmStorage.getFilmById(filmId);
+        return filmService.getFilmById(filmId);
     }
 
     @GetMapping("/popular")
-    public Collection<Film> popularFilms(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getTopPopularFilms(count);
     }
 
     @PutMapping
     @Validated(Marker.OnUpdate.class)
     public Film update(@RequestBody @Valid Film updatedFilm) {
-        return filmStorage.updateFilm(updatedFilm);
+        return filmService.updateFilm(updatedFilm);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -64,6 +62,6 @@ public class FilmController {
     @PostMapping
     @Validated(Marker.OnCreate.class)
     public Film addFilm(@RequestBody @Valid Film film) {
-        return filmStorage.addFilm(film);
+        return filmService.addFilm(film);
     }
 }

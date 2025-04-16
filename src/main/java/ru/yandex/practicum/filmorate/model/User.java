@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.annotation.Marker;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -38,29 +37,5 @@ public class User {
         this.name = name;
         this.birthday = birthday;
         this.friends = new HashSet<>();
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday) && Objects.equals(friends, user.friends);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, email, login, name, birthday, friends);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", login='" + login + '\'' +
-                ", name='" + name + '\'' +
-                ", birthday=" + birthday +
-                '}';
     }
 }

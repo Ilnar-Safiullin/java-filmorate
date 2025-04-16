@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.annotation.Marker;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeSpecificDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -26,11 +28,14 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительным числом", groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private Integer duration;
 
+    private Set<Integer> likes;
+
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
+        this.likes = new HashSet<>();
     }
 }
