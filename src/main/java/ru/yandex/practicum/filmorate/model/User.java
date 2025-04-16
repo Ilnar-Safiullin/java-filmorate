@@ -5,6 +5,8 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.Marker;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -26,11 +28,14 @@ public class User {
     @NotNull(message = "Дата рождения не может быть пустой", groups = Marker.OnCreate.class)
     private LocalDate birthday;
 
+    private Set<Integer> friends;
+
     public User(Integer id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
+        this.friends = new HashSet<>();
     }
 }
