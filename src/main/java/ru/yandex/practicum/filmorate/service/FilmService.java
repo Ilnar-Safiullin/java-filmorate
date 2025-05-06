@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
@@ -18,14 +18,16 @@ public class FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
     public void addLike(Integer filmId, Integer userId) {
         log.info("Добавления лайка в фильм с ID: {}", filmId);
-        filmStorage.getFilmById(filmId).getLikes().add(userStorage.getUserById(userId).getId()); // сделал так чтобы user проверялся иначе постман не проходит тест
+        Film film = filmStorage.getFilmById(filmId);
+        User user = userStorage.getUserById(userId); // эти две строчки чтобы убедиться что такой юзер и фильм есть
+        film.getLikes().add(user.getId());
         log.info("Добавлен лайк в фильм с ID: {}", filmId);
     }
 
