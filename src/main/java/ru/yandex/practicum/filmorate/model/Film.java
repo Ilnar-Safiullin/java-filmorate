@@ -30,12 +30,20 @@ public class Film {
 
     private Set<Integer> likes;
 
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration) {
+    private Set<Genre> genres = new HashSet<>();
+
+    private Mpa mpa;
+
+    public Film() {
+    }
+
+    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Genre> genres, Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.likes = new HashSet<>();
+        this.genres = genres;
+        this.mpa = mpa;
     }
 }

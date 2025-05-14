@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.annotation.Marker;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 
-
+@AllArgsConstructor
 @Validated
 @Slf4j
 @RestController
@@ -20,36 +22,31 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @GetMapping
-    public Collection<User> findAll() {
+    public Collection<UserDto> findAll() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable Integer userId) {
+    public UserDto getUserById(@PathVariable Integer userId) {
         return userService.getUserById(userId);
     }
 
     @GetMapping("{userId}/friends")
-    public Collection<User> userFriends(@PathVariable Integer userId) {
+    public Collection<UserDto> userFriends(@PathVariable Integer userId) {
         return userService.getUserFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
-    public Collection<User> commonFriends(@PathVariable Integer userId,
+    public Collection<UserDto> commonFriends(@PathVariable Integer userId,
                                           @PathVariable Integer otherId) {
         return userService.getCommonFriends(userId, otherId);
     }
 
     @PutMapping
     @Validated(Marker.OnUpdate.class)
-    public User update(@RequestBody @Valid User updatedUser) {
-        return userService.updateUser(updatedUser);
+    public UserDto update(@RequestBody @Valid UpdateUserRequest request) {
+        return userService.updateUser(request);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
@@ -66,7 +63,7 @@ public class UserController {
 
     @PostMapping
     @Validated(Marker.OnCreate.class)
-    public User addUser(@RequestBody @Valid User user) {
-        return userService.addUser(user);
+    public UserDto addUser(@RequestBody @Valid NewUserRequest request) {
+        return userService.addUser(request);
     }
 }
