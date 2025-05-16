@@ -31,7 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserDbStorage.class, UserRowMapper.class, FilmDbStorage.class, FilmRowMapper.class,
         MpaDbStorage.class, GenreDbStorage.class, MpaRowMapper.class, GenreRowMapper.class})
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
 
     private final UserDbStorage userDbStorage;
     private final FilmDbStorage filmDbStorage;
