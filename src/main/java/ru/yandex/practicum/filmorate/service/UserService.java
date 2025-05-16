@@ -52,7 +52,7 @@ public class UserService {
     }
 
     public List<UserDto> getCommonFriends(Integer userId1, Integer friendId) { // Здесь схитрил, ато не могу правильно запрос с таблицы нормально написать на общих друзей и сделал так
-        log.info("Попытка получения общих друзей у пользователя с ID: {}", userId1);
+        log.info("Попытка получения общих друзей у пользoвателя с ID: {}", userId1);
         Set<Integer> friendsOfUser1 = userDbStorage.getFriendsId(userId1);
         Set<Integer> friendsOfUser2 = userDbStorage.getFriendsId(friendId);
         friendsOfUser1.retainAll(friendsOfUser2);

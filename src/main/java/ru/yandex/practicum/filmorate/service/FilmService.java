@@ -72,12 +72,9 @@ public class FilmService {
     public FilmDto updateFilm(UpdateFilmRequest request) {
         log.info("Попытка обновления фильма");
         Film updatedFilm = filmDbStorage.getFilmById(request.getId());
-        log.info("Попытка обновления фильма2");
         updatedFilm = filmMapper.updateFromRequest(updatedFilm, request);
-        log.info("Попытка обновления фильма3");
         updatedFilm = filmDbStorage.updateFilm(updatedFilm);
-        log.info("Попытка обновления фильма4");
-        //updatedFilm.setGenres(new HashSet<>(genreDbStorage.findGenreByFilmId(updatedFilm.getId())));
+        log.info("Фильм обновлен");
         return filmMapper.mapToFilmDto(updatedFilm);
     }
 
