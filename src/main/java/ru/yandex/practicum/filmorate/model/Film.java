@@ -32,7 +32,7 @@ public class Film {
 
     private Set<Genre> genres = new HashSet<>();
 
-    @NotNull(message ="Рейтинг Мпа обязателен")
+    @NotNull(message = "Рейтинг Мпа обязателен")
     private Mpa mpa;
 
     public Film() {
