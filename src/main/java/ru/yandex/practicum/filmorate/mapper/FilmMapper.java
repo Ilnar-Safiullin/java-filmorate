@@ -12,14 +12,18 @@ import java.util.Set;
 
 @Component
 public class FilmMapper {
+    private static final int GENRE_MIN = 1;
+    private static final int GENRE_MAX = 6;
+    private static final int MPA_MIN = 1;
+    private static final int MPA_MAX = 6;
 
     public Film mapToFilm(NewFilmRequest request) {
-        if (request.getMpa().getId() > 5 || request.getMpa().getId() < 1) {
+        if (request.getMpa().getId() > MPA_MAX || request.getMpa().getId() < MPA_MIN) {
             throw new NotFoundException("Не верный id Mpa");
         }
         Set<Genre> genres = request.getGenres();
         for (Genre genre : genres) {
-            if (genre.getId() > 6 || genre.getId() < 1) {
+            if (genre.getId() > GENRE_MAX || genre.getId() < GENRE_MIN) {
                 throw new NotFoundException("Не верный id Genre");
             }
         }

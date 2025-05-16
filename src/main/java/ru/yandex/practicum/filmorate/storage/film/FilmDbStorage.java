@@ -25,8 +25,6 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbc;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
-    private static final int GENRE_MIN = 1;
-    private static final int GENRE_MAX = 6;
 
     private static final String FIND_ALL_FILMS = "SELECT * FROM films";
     private static final String FIND_BY_ID_FILM = "SELECT * FROM films WHERE film_id = ?";
@@ -73,8 +71,8 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId());
         film.setId(generatedId);
         updateMpaName(film);
-        updateGenre(film);
         insertInFilmGenreTable(film);
+        film.setGenres(genreDbStorage.getGenresForFilm(film));
         return film;
     }
 
@@ -100,7 +98,7 @@ public class FilmDbStorage implements FilmStorage {
             }
 
             film.setLikes(getLikesForFilm(film));
-            film.setGenres(updateGenre(film));
+            film.setGenres(genreDbStorage.getGenresForFilm(film));
             updateMpaName(film);
 
             return film;
@@ -114,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbc.query(FIND_ALL_FILMS, new FilmRowMapper());
         for (Film film : films) {
             film.setLikes(getLikesForFilm(film));
-            film.setGenres(updateGenre(film));
+            film.setGenres(genreDbStorage.getGenresForFilm(film));
             updateMpaName(film);
         }
         return films;
@@ -166,24 +164,6 @@ public class FilmDbStorage implements FilmStorage {
         Integer mpaId = film.getMpa().getId();
         String mpaName = mpaDbStorage.getNameForMpaId(mpaId);
         film.getMpa().setName(mpaName);
-    }
-
-    private Set<Genre> updateGenre(Film film) {
-        String genreName;
-        Set<Genre> genres = new HashSet<>();
-        if (film.getGenres().size() > 0) {
-            genres = film.getGenres();
-            for (Genre genre : genres) {
-                if (genre.getId() > GENRE_MAX || genre.getId() < GENRE_MIN) {
-                    throw new NotFoundException("Не верный id Genre");
-                }
-                genreName = genreDbStorage.getNameForGenreId(genre.getId());
-                genre.setName(genreName);
-            }
-        } else {
-            genres = genreDbStorage.findGenreByFilmId(film.getId());
-        }
-        return genres;
     }
 
     private void insertInFilmGenreTable(Film film) {

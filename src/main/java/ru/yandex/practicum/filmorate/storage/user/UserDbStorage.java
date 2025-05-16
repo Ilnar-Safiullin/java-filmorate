@@ -27,6 +27,7 @@ public class UserDbStorage implements UserStorage {
     private static final String GET_FRIEND_ID_QUERY =
             "SELECT friend_id FROM friendship WHERE user_id = ?";
 
+
     public UserDbStorage(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }

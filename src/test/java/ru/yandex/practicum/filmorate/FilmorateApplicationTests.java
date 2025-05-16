@@ -248,7 +248,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFilmGenres() {
-        Collection<Genre> filmGenresBeforeAdding = genreDbStorage.findGenreByFilmId(1);
+        Collection<Genre> filmGenresBeforeAdding = genreDbStorage.getGenresForFilm(film);
         assertThat(filmGenresBeforeAdding.size()).isEqualTo(2);
     }
 }

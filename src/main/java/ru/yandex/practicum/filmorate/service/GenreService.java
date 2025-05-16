@@ -35,5 +35,4 @@ public class GenreService {
                 .map(genreMapper::mapToGenreDto)
                 .collect(Collectors.toList());
     }
-
 }
