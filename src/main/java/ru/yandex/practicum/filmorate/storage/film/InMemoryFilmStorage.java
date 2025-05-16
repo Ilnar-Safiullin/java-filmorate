@@ -70,9 +70,4 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.info("Запрос на получение всех фильмов");
         return List.copyOf(films.values());
     }
-
-    @Override
-    public void deleteFilm(int id) {
-        films.remove(id);
-    }
 }

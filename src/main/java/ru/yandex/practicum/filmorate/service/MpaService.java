@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.mpa.MpaDto;
 import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,7 +28,7 @@ public class MpaService {
         return mpaMapper.mapToMpaDto(mpa);
     }
 
-    public List<MpaDto> getAllMpa() {
+    public Collection<MpaDto> getAllMpa() {
         return mpaDbStorage.getAllMpa()
                 .stream()
                 .map(mpaMapper::mapToMpaDto)

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +34,7 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public FilmDto findById(@PathVariable("postId") Integer filmId) {
+    public FilmDto findById(@PathVariable Integer filmId) {
         return filmService.getFilmById(filmId);
     }
 
@@ -44,12 +43,10 @@ public class FilmController {
         return filmService.getTopPopularFilms(count);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Validated(Marker.OnUpdate.class)
-    public FilmDto update(
-            @PathVariable @Positive(message = "ID фильма должен быть положительным") int id,
-            @RequestBody @Valid UpdateFilmRequest request) {
-        return filmService.updateFilm(id, request);
+    public FilmDto update(@RequestBody @Valid UpdateFilmRequest request) {
+        return filmService.updateFilm(request);
     }
 
     @PutMapping("/{filmId}/like/{userId}")

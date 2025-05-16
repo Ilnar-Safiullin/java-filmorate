@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.UserRowMapper;
@@ -12,10 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class UserDbStorage implements UserStorage {
@@ -25,15 +21,11 @@ public class UserDbStorage implements UserStorage {
     private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
-             "WHERE user_id = ?";
+            "WHERE user_id = ?";
     private static final String ADD_FRIEND_ID_QUERY = "INSERT INTO friendship(user_id, friend_id) VALUES (?, ?)";
     private static final String REMOVE_FRIEND_ID_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
     private static final String GET_FRIEND_ID_QUERY =
             "SELECT friend_id FROM friendship WHERE user_id = ?";
-    private static final String GET_COMMON_FRIEND_QUERY =
-            "SELECT u.* FROM users AS u JOIN friendship AS f ON u.id = f.friend_id WHERE f.user_id = ? " +
-                    "JOIN friendship f1 ON u.id = f1.friend_id AND f1.user_id = ? " +
-                    "JOIN friendship f2 ON u.id = f2.friend_id AND f2.user_id = ?";
 
     public UserDbStorage(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -69,11 +61,7 @@ public class UserDbStorage implements UserStorage {
             if (user == null) {
                 throw new NotFoundException("Пользователь c таким id не найден: " + id);
             }
-
-            // Получаем список друзей
-            List<Integer> friendsList = jdbc.queryForList(GET_FRIEND_ID_QUERY, new Object[]{id}, Integer.class);
-            user.setFriends(new HashSet<>(friendsList)); // Устанавливаем список друзей
-
+            user.setFriends(getFriendsId(user.getId())); //думал все перенести в UserRowMapper, чтобы там сразу обьект со всеми полями получать, но вроде как не правильно там обращаться к БД, поэтому сделал здесь
             return user;
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Пользователь c таким id не найден: " + id);
@@ -82,11 +70,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getAllUsers() {
-        return jdbc.query(FIND_ALL_QUERY, new UserRowMapper());
-    }
-
-    @Override
-    public void deleteUser(int id) {
+        List<User> users = jdbc.query(FIND_ALL_QUERY, new UserRowMapper());
+        for (User user : users) {
+            user.setFriends(getFriendsId(user.getId()));
+        }
+        return users;
     }
 
     protected Integer insert(String query, Object... params) {
@@ -114,25 +102,17 @@ public class UserDbStorage implements UserStorage {
         jdbc.update(REMOVE_FRIEND_ID_QUERY, userId, friendId);
     }
 
-    public List<Integer> getFriendsId(int userId) {
+    public Set<Integer> getFriendsId(int userId) {
         List<Integer> friendsList = jdbc.queryForList(GET_FRIEND_ID_QUERY, new Object[]{userId}, Integer.class);
-        return friendsList;
+        return new HashSet<>(friendsList);
     }
 
-    public List<User> getFriends(int userId) {
+    public List<User> getFriendsForUser(int userId) {
         List<Integer> friendsList = jdbc.queryForList(GET_FRIEND_ID_QUERY, new Object[]{userId}, Integer.class);
         List<User> friends = new ArrayList<>();
         for (Integer id : friendsList) {
             friends.add(getUserById(id));
         }
         return friends;
-    }
-
-    public List<User> getCommonFriends(int userId, int otherId) {
-        return jdbc.query(
-                GET_COMMON_FRIEND_QUERY,
-                new BeanPropertyRowMapper<>(User.class),
-                userId, otherId
-        );
     }
 }

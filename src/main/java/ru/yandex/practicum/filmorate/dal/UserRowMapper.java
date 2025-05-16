@@ -18,11 +18,7 @@ public class UserRowMapper implements RowMapper<User> {
         user.setLogin(resultSet.getString("login"));
         user.setName(resultSet.getString("name"));
         Date birthdayDate = resultSet.getDate("birthday");
-        if (birthdayDate != null) {
-            user.setBirthday(birthdayDate.toLocalDate()); // Прямое преобразование
-        } else {
-            user.setBirthday(null); // Или обработка null по вашему выбору
-        }
+        user.setBirthday(birthdayDate.toLocalDate());
 
         return user;
     }

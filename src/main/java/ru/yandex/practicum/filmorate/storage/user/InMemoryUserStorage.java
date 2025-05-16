@@ -73,9 +73,4 @@ public class InMemoryUserStorage implements UserStorage {
         log.info("Запрос на получение всех пользователей");
         return new ArrayList<>(users.values());
     }
-
-    @Override
-    public void deleteUser(int id) {
-        users.remove(id);
-    }
 }

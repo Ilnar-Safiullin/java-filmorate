@@ -1,18 +1,23 @@
 package ru.yandex.practicum.filmorate.dto.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
 public class UpdateUserRequest {
+
+    @NotNull(message = "id обязателен и должен быть больше нуля")
+    @Positive(message = "id обязателен и должен быть больше нуля")
     private int id;
 
     @Email(message = "Электронная почта должна быть корректной")
     private String email;
 
+    @NotNull
+    @NotBlank
+    @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелов")
     private String login;
 
     private String name;

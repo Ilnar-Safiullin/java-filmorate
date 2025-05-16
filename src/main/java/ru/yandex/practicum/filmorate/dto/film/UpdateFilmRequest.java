@@ -1,26 +1,37 @@
 package ru.yandex.practicum.filmorate.dto.film;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeSpecificDate;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
 public class UpdateFilmRequest {
 
+    @NotNull(message = "id обязателен и должен быть больше нуля")
+    @Positive(message = "id обязателен и должен быть больше нуля")
+    private Integer id;
+
     private String name;
+
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
+
     @NotBeforeSpecificDate(message = "Дата релиза должна быть после 28 декабря 1895 года")
     private LocalDate releaseDate;
+
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
+
     private Mpa mpa;
-    private Set<Genre> genres = new HashSet<>();
+
+    private Set<Genre> genres;
 
     public boolean hasName() { return name != null && !name.isBlank(); }
     public boolean hasDescription() { return description != null && !description.isBlank(); }

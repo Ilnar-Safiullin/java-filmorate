@@ -29,8 +29,8 @@ public class UserService {
 
     public void addFriend(Integer userId, Integer friendId) {
         log.info("Попытка добавления в друзья у пользователя с ID: {}", userId);
-        User user = userDbStorage.getUserById(userId);
-        User friend = userDbStorage.getUserById(friendId);
+        User user = userDbStorage.getUserById(userId); //проверка что такой юзер существует
+        User friend = userDbStorage.getUserById(friendId); //проверка что такой юзер существует
         user.getFriends().add(friendId);
         userDbStorage.addFriend(userId, friendId);
         log.info("Добавлен друг у пользователя с ID: {}", userId);
@@ -45,7 +45,7 @@ public class UserService {
 
     public List<UserDto> getUserFriends(int userId) {
         userDbStorage.getUserById(userId); //проверка что такой юзер существует
-        List<User> friends = userDbStorage.getFriends(userId);
+        List<User> friends = userDbStorage.getFriendsForUser(userId);
         return friends.stream()
                 .map(userMapper::mapToUserDto)
                 .collect(Collectors.toList());
@@ -53,8 +53,8 @@ public class UserService {
 
     public List<UserDto> getCommonFriends(Integer userId1, Integer friendId) { // Здесь схитрил, ато не могу правильно запрос с таблицы нормально написать на общих друзей и сделал так
         log.info("Попытка получения общих друзей у пользователя с ID: {}", userId1);
-        List<Integer> friendsOfUser1 = userDbStorage.getFriendsId(userId1);
-        List<Integer> friendsOfUser2 = userDbStorage.getFriendsId(friendId);
+        Set<Integer> friendsOfUser1 = userDbStorage.getFriendsId(userId1);
+        Set<Integer> friendsOfUser2 = userDbStorage.getFriendsId(friendId);
         Set<Integer> commonFriends = new HashSet<>(friendsOfUser1);
         commonFriends.retainAll(friendsOfUser2);
         return commonFriends.stream()
@@ -90,9 +90,5 @@ public class UserService {
                 .stream()
                 .map(userMapper::mapToUserDto)
                 .collect(Collectors.toList());
-    }
-
-    public void deleteUser(int id) {
-        userDbStorage.deleteUser(id);
     }
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.mpa;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +12,7 @@ import java.util.Collection;
 @Repository
 public class MpaDbStorage {
     protected final JdbcTemplate jdbc;
-    private static final String FIND_ALL_QUERY = "SELECT * FROM mpa_rating";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM mpa_rating ORDER BY mpa_id";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM mpa_rating WHERE mpa_id = ?";
     private static final String FIND_NAME_BY_ID_QUERY = "SELECT name FROM mpa_rating WHERE mpa_id = ?";
 

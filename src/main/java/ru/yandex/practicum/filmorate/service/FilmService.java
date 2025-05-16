@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -22,15 +23,17 @@ public class FilmService {
     private final FilmDbStorage filmDbStorage;
     private final FilmMapper filmMapper;
     private final UserDbStorage userDbStorage;
+    private final GenreDbStorage genreDbStorage;
 
     @Autowired
     public FilmService(
             @Qualifier("filmDbStorage") FilmDbStorage filmDbStorage,
             FilmMapper filmMapper,
-            UserDbStorage userDbStorage) {
+            UserDbStorage userDbStorage, GenreDbStorage genreDbStorage) {
         this.filmDbStorage = filmDbStorage;
         this.filmMapper = filmMapper;
         this.userDbStorage = userDbStorage;
+        this.genreDbStorage = genreDbStorage;
     }
 
     public void addLike(Integer filmId, Integer userId) {
@@ -52,7 +55,7 @@ public class FilmService {
 
     public List<FilmDto> getTopPopularFilms(Integer count) {
         log.info("Запрос на получение самых популярных фильмов");
-        return filmDbStorage.get10PopularFilms().stream()
+        return filmDbStorage.getPopularFilms(count).stream()
                 .limit(count)
                 .map(filmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
@@ -66,11 +69,15 @@ public class FilmService {
         return filmMapper.mapToFilmDto(film);
     }
 
-    public FilmDto updateFilm(int id, UpdateFilmRequest request) {
+    public FilmDto updateFilm(UpdateFilmRequest request) {
         log.info("Попытка обновления фильма");
-        Film updatedFilm = filmDbStorage.getFilmById(id);
-        filmMapper.updateFromRequest(updatedFilm, request);
+        Film updatedFilm = filmDbStorage.getFilmById(request.getId());
+        log.info("Попытка обновления фильма2");
+        updatedFilm = filmMapper.updateFromRequest(updatedFilm, request);
+        log.info("Попытка обновления фильма3");
         updatedFilm = filmDbStorage.updateFilm(updatedFilm);
+        log.info("Попытка обновления фильма4");
+        //updatedFilm.setGenres(new HashSet<>(genreDbStorage.findGenreByFilmId(updatedFilm.getId())));
         return filmMapper.mapToFilmDto(updatedFilm);
     }
 
