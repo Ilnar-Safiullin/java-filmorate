@@ -32,11 +32,27 @@ public class NewFilmRequest {
     private Mpa mpa;
 
 
+    public boolean hasName() {
+        return name != null && !name.isBlank();
+    }
 
-    public boolean hasName() { return name != null && !name.isBlank(); }
-    public boolean hasDescription() { return description != null && !description.isBlank(); }
-    public boolean hasReleaseDate() { return releaseDate != null; }
-    public boolean hasDuration() { return duration != null && duration > 0; }
-    public boolean hasMpaId() { return mpa != null; }
-    public boolean hasGenres() { return genres != null && !genres.isEmpty(); }
+    public boolean hasDescription() {
+        return description != null && !description.isBlank();
+    }
+
+    public boolean hasReleaseDate() {
+        return releaseDate != null;
+    }
+
+    public boolean hasDuration() {
+        return duration != null && duration > 0;
+    }
+
+    public boolean hasMpaId() {
+        return mpa != null;
+    }
+
+    public boolean hasGenres() {
+        return genres != null && !genres.isEmpty();
+    }
 }

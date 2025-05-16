@@ -55,9 +55,8 @@ public class UserService {
         log.info("Попытка получения общих друзей у пользователя с ID: {}", userId1);
         Set<Integer> friendsOfUser1 = userDbStorage.getFriendsId(userId1);
         Set<Integer> friendsOfUser2 = userDbStorage.getFriendsId(friendId);
-        Set<Integer> commonFriends = new HashSet<>(friendsOfUser1);
-        commonFriends.retainAll(friendsOfUser2);
-        return commonFriends.stream()
+        friendsOfUser1.retainAll(friendsOfUser2);
+        return friendsOfUser1.stream()
                 .map(userDbStorage::getUserById)
                 .map(userMapper::mapToUserDto)
                 .collect(Collectors.toList());
