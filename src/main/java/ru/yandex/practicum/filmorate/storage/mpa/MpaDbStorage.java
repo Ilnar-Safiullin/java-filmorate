@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.MpaRowMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
@@ -32,7 +33,10 @@ public class MpaDbStorage {
         return jdbc.query(FIND_ALL_QUERY, new MpaRowMapper());
     }
 
-    public String getNameForMpaId(Integer id) {
-        return jdbc.queryForObject(FIND_NAME_BY_ID_QUERY, new Object[]{id}, String.class);
+    public void updateMpaName(Film film) {
+        Integer mpaId = film.getMpa().getId();
+        String mpaName = jdbc.queryForObject(FIND_NAME_BY_ID_QUERY, new Object[]{mpaId}, String.class);
+        film.getMpa().setName(mpaName);
     }
+
 }

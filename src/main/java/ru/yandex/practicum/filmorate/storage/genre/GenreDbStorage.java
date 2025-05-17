@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
+import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,18 +11,16 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.*;
 
+@AllArgsConstructor
 @Repository
 public class GenreDbStorage {
     protected final JdbcTemplate jdbc;
     private static final String FIND_ALL_QUERY = "SELECT * FROM genres ORDER BY genre_id";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM genres WHERE genre_id = ?";
-    private static final String FIND_ALL_GENRE_BE_FILM_ID =
+    private static final String FIND_ALL_GENRE_BY_FILM_ID =
             "SELECT g.genre_id, g.name FROM genres g JOIN film_genre fg ON g.genre_id = fg.genre_id " +
-            "WHERE fg.film_id = ? ORDER BY genre_id";
+                    "WHERE fg.film_id = ? ORDER BY genre_id";
 
-    public GenreDbStorage(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
 
     public Genre getGenreById(int id) {
         try {
@@ -36,7 +35,7 @@ public class GenreDbStorage {
     }
 
     public Set<Genre> getGenresForFilm(Film film) {
-        List<Genre> genres = jdbc.query(FIND_ALL_GENRE_BE_FILM_ID, new GenreRowMapper(), film.getId());
+        List<Genre> genres = jdbc.query(FIND_ALL_GENRE_BY_FILM_ID, new GenreRowMapper(), film.getId());
         return new TreeSet<>(genres);
     }
 }

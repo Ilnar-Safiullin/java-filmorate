@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.*;
@@ -24,16 +25,18 @@ public class FilmService {
     private final FilmMapper filmMapper;
     private final UserDbStorage userDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     @Autowired
     public FilmService(
             @Qualifier("filmDbStorage") FilmDbStorage filmDbStorage,
             FilmMapper filmMapper,
-            UserDbStorage userDbStorage, GenreDbStorage genreDbStorage) {
+            UserDbStorage userDbStorage, GenreDbStorage genreDbStorage, MpaDbStorage mpaDbStorage) {
         this.filmDbStorage = filmDbStorage;
         this.filmMapper = filmMapper;
         this.userDbStorage = userDbStorage;
         this.genreDbStorage = genreDbStorage;
+        this.mpaDbStorage = mpaDbStorage;
     }
 
     public void addLike(Integer filmId, Integer userId) {
@@ -65,6 +68,8 @@ public class FilmService {
         log.info("Попытка добавления нового фильма");
         Film film = filmMapper.mapToFilm(request);
         film = filmDbStorage.addFilm(film);
+        mpaDbStorage.updateMpaName(film);
+        film.setGenres(genreDbStorage.getGenresForFilm(film));
         log.info("Фильм успешно создан: {}", film);
         return filmMapper.mapToFilmDto(film);
     }
