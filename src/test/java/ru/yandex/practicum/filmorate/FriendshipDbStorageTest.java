@@ -1,5 +1,4 @@
-/*
-package storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,5 +87,3 @@ public class FriendshipDbStorageTest {
     }
 
 }
-
- */

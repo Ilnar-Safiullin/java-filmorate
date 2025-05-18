@@ -1,5 +1,4 @@
-/*
-package storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +65,7 @@ public class UserDbStorageTest {
     @Test
     public void testFindAllUsers() {
         Collection<User> allUsers = userDbStorage.getAllUsers();
-        assertThat(allUsers.size()).isEqualTo(3);
+        assertThat(allUsers.size()).isEqualTo(2);
 
         List<String> emails = allUsers.stream()
                 .map(User::getEmail)
@@ -80,7 +79,7 @@ public class UserDbStorageTest {
         userDbStorage.updateUser(user);
         Collection<User> allUsers = userDbStorage.getAllUsers();
 
-        assertThat(allUsers.size()).isEqualTo(3);
+        assertThat(allUsers.size()).isEqualTo(2);
 
         List<String> names = allUsers.stream()
                 .map(User::getName)
@@ -88,5 +87,3 @@ public class UserDbStorageTest {
         assertThat(names.contains("Updated name")).isTrue();
     }
 }
-
- */

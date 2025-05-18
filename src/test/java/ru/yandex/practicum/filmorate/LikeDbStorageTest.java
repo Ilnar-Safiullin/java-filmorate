@@ -1,5 +1,5 @@
 /*
-package storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +14,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -25,10 +27,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmRowMapper.class})
-public class FilmDbStorageTest {
+@Import({FilmDbStorage.class, FilmRowMapper.class, LikeDbStorage.class})
+public class LikeDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final JdbcTemplate jdbc;
+    private final LikeDbStorage likeDbStorage;
+
     private Film film;
     private Film film2;
 
@@ -67,37 +71,28 @@ public class FilmDbStorageTest {
         filmDbStorage.addFilm(film2);
     }
 
-
     @Test
-    public void testFindFilmById() {
-        Film film1 = filmDbStorage.getFilmById(1);
-        assertThat(film1)
-                .hasFieldOrPropertyWithValue("id", 1);
+    public void testAddLike() {
+        likeDbStorage.addLikeFilm(2, 1);
+        Collection<Film> mostLiked = likeDbStorage.getPopularFilms(1);
+        assertThat(mostLiked.size()).isEqualTo(1);
+
+        List<String> names = mostLiked.stream()
+                .map(Film::getName)
+                .toList();
+        assertThat(names.contains("filmName2")).isTrue();
     }
 
     @Test
-    public void testFindAllFilms() {
-        Collection<Film> allFilms = filmDbStorage.getAllFilms();
-        assertThat(allFilms.size()).isEqualTo(2);
+    public void testDeleteLike() {
+        likeDbStorage.addLikeFilm(2, 1);
+        String selectQuery = "SELECT * FROM likes";
+        List<Map<String, Object>> rows = jdbc.queryForList(selectQuery);
+        assertThat(rows.size()).isEqualTo(1);
 
-        List<String> names = allFilms.stream()
-                .map(Film::getName)
-                .toList();
-        assertThat(names.contains("filmName")).isTrue();
-    }
-
-    @Test
-    public void testUpdateFilm() {
-        film.setName("Updated name");
-        filmDbStorage.updateFilm(film);
-        Collection<Film> allFilms = filmDbStorage.getAllFilms();
-        assertThat(allFilms.size()).isEqualTo(2);
-
-        List<String> names = allFilms.stream()
-                .map(Film::getName)
-                .toList();
-        assertThat(names.contains("Updated name")).isTrue();
+        likeDbStorage.deleteLikeFilm(2, 1);
+        List<Map<String, Object>> rowsAfter = jdbc.queryForList(selectQuery);
+        assertThat(rowsAfter.isEmpty()).isTrue();
     }
 }
-
  */

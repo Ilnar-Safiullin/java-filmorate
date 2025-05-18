@@ -1,5 +1,4 @@
-/*
-package storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,12 +13,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -27,11 +24,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmRowMapper.class, LikeDbStorage.class})
-public class LikeDbStorageTest {
+@Import({FilmDbStorage.class, FilmRowMapper.class, MpaDbStorage.class})
+public class MpaDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final JdbcTemplate jdbc;
-    private final LikeDbStorage likeDbStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     private Film film;
     private Film film2;
@@ -72,29 +69,15 @@ public class LikeDbStorageTest {
     }
 
     @Test
-    public void testAddLike() {
-        likeDbStorage.addLikeFilm(2, 1);
-        Collection<Film> mostLiked = likeDbStorage.getPopularFilms(1);
-        assertThat(mostLiked.size()).isEqualTo(1);
-
-        List<String> names = mostLiked.stream()
-                .map(Film::getName)
-                .toList();
-        assertThat(names.contains("filmName2")).isTrue();
+    public void testFindAllMpa() {
+        Collection<Mpa> allMpa = mpaDbStorage.getAllMpa();
+        assertThat(allMpa.size()).isEqualTo(5);
     }
 
     @Test
-    public void testDeleteLike() {
-        likeDbStorage.addLikeFilm(2, 1);
-        String selectQuery = "SELECT * FROM likes";
-        List<Map<String, Object>> rows = jdbc.queryForList(selectQuery);
-        assertThat(rows.size()).isEqualTo(1);
-
-        likeDbStorage.deleteLikeFilm(2, 1);
-        List<Map<String, Object>> rowsAfter = jdbc.queryForList(selectQuery);
-        assertThat(rowsAfter.isEmpty()).isTrue();
+    public void testFindMpaById() {
+        Mpa mpa = mpaDbStorage.getMpaById(1);
+        assertThat(mpa)
+                .hasFieldOrPropertyWithValue("id", 1);
     }
-
 }
-
- */

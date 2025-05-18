@@ -1,5 +1,5 @@
 /*
-package storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,11 +10,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.FilmRowMapper;
+import ru.yandex.practicum.filmorate.dal.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -23,16 +24,17 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @JdbcTest
-@AutoConfigureTestDatabase
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmRowMapper.class, MpaDbStorage.class})
-public class MpaDbStorageList {
+@Import({GenreDbStorage.class, GenreRowMapper.class, FilmDbStorage.class, FilmRowMapper.class})
+public class GenreDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final JdbcTemplate jdbc;
-    private final MpaDbStorage mpaDbStorage;
+    private GenreDbStorage genreDbStorage;
 
     private Film film;
     private Film film2;
+
 
     @BeforeEach
     void setUp() {
@@ -70,16 +72,33 @@ public class MpaDbStorageList {
     }
 
     @Test
-    public void testFindAllMpa() {
-        Collection<Mpa> allMpa = mpaDbStorage.getAllMpa();
-        assertThat(allMpa.size()).isEqualTo(5);
+    public void testFindGenreById() {
+        Genre genre = genreDbStorage.getGenreById(1);
+        assertThat(genre)
+                .hasFieldOrPropertyWithValue("id", 1);
     }
 
     @Test
-    public void testFindMpaById() {
-        Mpa mpa = mpaDbStorage.getMpaById(1);
-        assertThat(mpa)
-                .hasFieldOrPropertyWithValue("id", 1);
+    public void testFilmGenres() {
+        genreDbStorage.insertInFilmGenreTable(film);
+        Set<Genre> filmGenresBeforeAdding = genreDbStorage.getGenresForFilm(film);
+        assertThat(filmGenresBeforeAdding.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testGetAllGenres() {
+        Collection<Genre> genres = genreDbStorage.getAllGenre();
+        assertThat(genres.size()).isEqualTo(6);
+    }
+
+    @Test
+    public void testInsertInFilm_genre() {
+        Genre genre5 = new Genre();
+        genre5.setId(5);
+        Film film3 = new Film();
+        film3.setGenres(Set.of(genre5));
+        genreDbStorage.insertInFilmGenreTable(film3);
+        assertThat(film3.getGenres()).isEqualTo(genreDbStorage.getGenresForFilm(film3));
     }
 }
 
