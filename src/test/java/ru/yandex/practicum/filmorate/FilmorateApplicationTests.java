@@ -16,7 +16,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -30,7 +32,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserDbStorage.class, UserRowMapper.class, FilmDbStorage.class, FilmRowMapper.class,
-        MpaDbStorage.class, GenreDbStorage.class, MpaRowMapper.class, GenreRowMapper.class})
+        MpaDbStorage.class, GenreDbStorage.class, MpaRowMapper.class, GenreRowMapper.class, LikeDbStorage.class,
+        FriendshipDbStorage.class})
 class FilmorateApplicationTests {
 
     private final UserDbStorage userDbStorage;
@@ -38,6 +41,8 @@ class FilmorateApplicationTests {
     private final JdbcTemplate jdbc;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final LikeDbStorage likeDbStorage;
+    private final FriendshipDbStorage friendshipDbStorage;
 
     private User user;
     private User user2;
@@ -134,10 +139,11 @@ class FilmorateApplicationTests {
         assertThat(names.contains("Updated name")).isTrue();
     }
 
+
     @Test
     public void testAddFriend() {
-        userDbStorage.addFriend(1, 2);
-        Collection<User> friends = userDbStorage.getFriendsForUser(1);
+        friendshipDbStorage.addFriend(1, 2);
+        Collection<User> friends = friendshipDbStorage.getFriendsForUserId(1);
         assertThat(friends.size()).isEqualTo(1);
 
         List<Integer> ids = friends.stream()
@@ -145,25 +151,27 @@ class FilmorateApplicationTests {
                 .toList();
         assertThat(ids.contains(2)).isTrue();
 
-        Collection<User> user2Friends = userDbStorage.getFriendsForUser(2);
+        Collection<User> user2Friends = friendshipDbStorage.getFriendsForUserId(2);
         assertThat(user2Friends.isEmpty()).isTrue();
     }
 
     @Test
     public void testDeleteFriend() {
-        userDbStorage.addFriend(1, 2);
-        Collection<User> friends = userDbStorage.getFriendsForUser(1);
+        friendshipDbStorage.addFriend(1, 2);
+        Collection<User> friends = friendshipDbStorage.getFriendsForUserId(1);
         assertThat(friends.size()).isEqualTo(1);
 
         List<Integer> ids = friends.stream()
                 .map(User::getId)
                 .toList();
         assertThat(ids.contains(2)).isTrue();
-        userDbStorage.removeFriend(1, 2);
+        friendshipDbStorage.removeFriend(1, 2);
 
-        Collection<User> user1Friends = userDbStorage.getFriendsForUser(1);
+        Collection<User> user1Friends = friendshipDbStorage.getFriendsForUserId(1);
         assertThat(user1Friends.isEmpty()).isTrue();
     }
+
+
 
     @Test
     public void testFindFilmById() {
@@ -196,10 +204,11 @@ class FilmorateApplicationTests {
         assertThat(names.contains("Updated name")).isTrue();
     }
 
+
     @Test
     public void testAddLike() {
-        filmDbStorage.addLikeFilm(2, 1);
-        Collection<Film> mostLiked = filmDbStorage.getPopularFilms(1);
+        likeDbStorage.addLikeFilm(2, 1);
+        Collection<Film> mostLiked = likeDbStorage.getPopularFilms(1);
         assertThat(mostLiked.size()).isEqualTo(1);
 
         List<String> names = mostLiked.stream()
@@ -210,15 +219,16 @@ class FilmorateApplicationTests {
 
     @Test
     public void testDeleteLike() {
-        filmDbStorage.addLikeFilm(2, 1);
+        likeDbStorage.addLikeFilm(2, 1);
         String selectQuery = "SELECT * FROM likes";
         List<Map<String, Object>> rows = jdbc.queryForList(selectQuery);
         assertThat(rows.size()).isEqualTo(1);
 
-        filmDbStorage.deleteLikeFilm(2, 1);
+        likeDbStorage.deleteLikeFilm(2, 1);
         List<Map<String, Object>> rowsAfter = jdbc.queryForList(selectQuery);
         assertThat(rowsAfter.isEmpty()).isTrue();
     }
+
 
     @Test
     public void testFindAllMpa() {
@@ -248,7 +258,8 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFilmGenres() {
-        Collection<Genre> filmGenresBeforeAdding = genreDbStorage.getGenresForFilm(film);
+        genreDbStorage.insertInFilmGenreTable(film);
+        Set<Genre> filmGenresBeforeAdding = genreDbStorage.getGenresForFilm(film);
         assertThat(filmGenresBeforeAdding.size()).isEqualTo(2);
     }
 }

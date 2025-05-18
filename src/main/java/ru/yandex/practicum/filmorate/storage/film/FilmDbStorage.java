@@ -9,12 +9,9 @@ import ru.yandex.practicum.filmorate.dal.FilmRowMapper;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -38,21 +35,6 @@ public class FilmDbStorage implements FilmStorage {
     private static final String UPDATE_FILM = """
             UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?,
             mpa_id = ? WHERE film_id = ?""";
-    private static final String INSERT_ADD_LIKE_FILM = "INSERT INTO likes(film_id, user_id) VALUES (?, ?)";
-    private static final String DELETE_LIKE_FILM = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_POPULAR_FILMS = """
-            SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id,
-            COUNT(l.user_id) AS likes_count
-            FROM
-                films f
-            LEFT JOIN
-                likes l ON f.film_id = l.film_id
-            GROUP BY
-                f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id
-            ORDER BY
-                likes_count DESC
-            LIMIT ?""";
-    private static final String INSERT_IN_FILM_GENRE = "INSERT INTO film_genre(film_id, genre_id) VALUES (?, ?)";
     private static final String GET_ALL_FILMS =
             "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name AS mpa_name, " +
                     "g.genre_id, g.name AS genreName, fg.genre_id AS chekgenre " +
@@ -72,50 +54,17 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId());
         film.setId(generatedId);
-        insertInFilmGenreTable(film);
-
         return film;
     }
 
     @Override
     public Collection<Film> getAllFilms() {
-        Map<Integer, Film> filmMap = new HashMap<>();
-
-        jdbc.query(GET_ALL_FILMS, (resultSet) -> {
-            int filmId = resultSet.getInt("film_id");
-            Film film = filmMap.get(filmId);
-
-            if (film == null) {
-                film = new Film();
-                film.setId(filmId);
-                film.setName(resultSet.getString("name"));
-                film.setDescription(resultSet.getString("description"));
-                java.sql.Date releaseDate = resultSet.getDate("release_date");
-                film.setReleaseDate(releaseDate.toLocalDate());
-                film.setDuration(resultSet.getInt("duration"));
-                film.setGenres(new HashSet<>());
-                film.setMpa(new Mpa());
-                filmMap.put(filmId, film);
-            }
-
-            Integer haveGenre = resultSet.getInt("chekgenre");
-
-            if (haveGenre != null) {
-                Genre genre = new Genre();
-                genre.setId(resultSet.getInt("genre_id"));
-                genre.setName(resultSet.getString("genreName"));
-                film.getGenres().add(genre);
-            }
-
-            Mpa mpa = new Mpa();
-            mpa.setId(resultSet.getInt("mpa_id"));
-            mpa.setName(resultSet.getString("mpa_name"));
-            film.setMpa(mpa);
-        });
-
-        return new ArrayList<>(filmMap.values());
+        List<Film> films = jdbc.query(GET_ALL_FILMS, new FilmRowMapper());
+        if (films.isEmpty()) {
+            throw new NotFoundException("Фильмов пока нет");
+        }
+        return films;
     }
-
 
     @Override
     public Film updateFilm(Film film) {
@@ -132,43 +81,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(int id) {
-        Map<Integer, Film> filmMap = new HashMap<>();
-
-        jdbc.query(FIND_BY_ID_FILM, resultSet -> {
-            Integer filmId = resultSet.getObject("film_id", Integer.class);
-            Film film = filmMap.get(filmId);
-            if (film == null) {
-                film = new Film();
-                film.setId(filmId);
-                film.setName(resultSet.getString("name"));
-                film.setDescription(resultSet.getString("description"));
-                film.setReleaseDate(resultSet.getObject("release_date", LocalDate.class));
-                film.setDuration(resultSet.getObject("duration", Integer.class));
-                film.setGenres(new LinkedHashSet<>());
-                film.setLikes(new HashSet<>());
-                film.setMpa(new Mpa());
-                filmMap.put(filmId, film);
-            }
-
-            Integer haveGenre = resultSet.getObject("genre_id", Integer.class);
-
-            if (haveGenre != null) {
-                Genre genre = new Genre();
-                genre.setId(resultSet.getInt("genre_id"));
-                genre.setName(resultSet.getString("genreName"));
-                film.getGenres().add(genre); // Добавляем друга в коллекцию
-            }
-
-            Mpa mpa = new Mpa();
-            mpa.setId(resultSet.getInt("mpa_id"));
-            mpa.setName(resultSet.getString("mpa_name"));
-            film.setMpa(mpa);
-        }, id);
-
-        if (filmMap.isEmpty()) {
-            throw new NotFoundException("Такого фильма не существует");
+        List<Film> films = jdbc.query(FIND_BY_ID_FILM, new FilmRowMapper(), id);
+        if (films.isEmpty()) {
+            throw new NotFoundException("Фильм с таким айди не найден: " + id);
         }
-        return filmMap.get(id);
+        return films.getFirst();
     }
 
     private Integer insert(String query, boolean expectGeneratedKey, Object... params) {
@@ -188,34 +105,6 @@ public class FilmDbStorage implements FilmStorage {
                 throw new InternalServerException("Не удалось обновить данные");
             }
             return rowsCreated;
-        }
-    }
-
-    public void addLikeFilm(Integer filmId, Integer userId) {
-        Integer generatedId = insert(INSERT_ADD_LIKE_FILM,
-                false,
-                filmId,
-                userId
-        );
-    }
-
-    public void deleteLikeFilm(Integer filmId, Integer userId) {
-        jdbc.update(DELETE_LIKE_FILM, filmId, userId);
-    }
-
-    public List<Film> getPopularFilms(int count) {
-        List<Film> films = jdbc.query(GET_POPULAR_FILMS, new FilmRowMapper(), count);
-        return films;
-    }
-
-    private void insertInFilmGenreTable(Film film) {
-        Set<Genre> genres = film.getGenres();
-        for (Genre genre : genres) {
-            insert(INSERT_IN_FILM_GENRE,
-                    false,
-                    film.getId(),
-                    genre.getId()
-            );
         }
     }
 }

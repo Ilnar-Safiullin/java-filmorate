@@ -1,21 +1,19 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 @Component
 public class UserMapper {
 
-    public User mapToUser(NewUserRequest request) {
+    public User mapToUser(UserDto userDtoRequest) {
         return new User(
                 null,
-                request.getEmail(),
-                request.getLogin(),
-                request.getName(),
-                request.getBirthday()
+                userDtoRequest.getEmail(),
+                userDtoRequest.getLogin(),
+                userDtoRequest.getName(),
+                userDtoRequest.getBirthday()
         );
     }
 
@@ -30,18 +28,18 @@ public class UserMapper {
         return dto;
     }
 
-    public User updateFromRequest(User existing, UpdateUserRequest request) {
-        if (request.hasEmail()) {
-            existing.setEmail(request.getEmail());
+    public User updateFromRequest(User existing, UserDto userDto) {
+        if (userDto.hasEmail()) {
+            existing.setEmail(userDto.getEmail());
         }
-        if (request.hasLogin()) {
-            existing.setLogin(request.getLogin());
+        if (userDto.hasLogin()) {
+            existing.setLogin(userDto.getLogin());
         }
-        if (request.hasName()) {
-            existing.setName(request.getName());
+        if (userDto.hasName()) {
+            existing.setName(userDto.getName());
         }
-        if (request.hasBirthday()) {
-            existing.setBirthday(request.getBirthday());
+        if (userDto.hasBirthday()) {
+            existing.setBirthday(userDto.getBirthday());
         }
         return existing;
     }
