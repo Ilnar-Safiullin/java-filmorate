@@ -57,8 +57,8 @@ public class FriendshipDbStorageTest {
 
     @Test
     public void testAddFriend() {
-        friendshipDbStorage.addFriend(1, 2);
-        Collection<User> friends = friendshipDbStorage.getFriendsForUserId(1);
+        friendshipDbStorage.addFriend(user.getId(), user2.getId());
+        Collection<User> friends = friendshipDbStorage.getFriendsForUserId(user.getId());
         assertThat(friends.size()).isEqualTo(1);
 
         List<Integer> ids = friends.stream()
@@ -66,13 +66,13 @@ public class FriendshipDbStorageTest {
                 .toList();
         assertThat(ids.contains(2)).isTrue();
 
-        Collection<User> user2Friends = friendshipDbStorage.getFriendsForUserId(2);
+        Collection<User> user2Friends = friendshipDbStorage.getFriendsForUserId(user2.getId());
         assertThat(user2Friends.isEmpty()).isTrue();
     }
 
     @Test
     public void testDeleteFriend() {
-        friendshipDbStorage.addFriend(1, 2);
+        friendshipDbStorage.addFriend(user.getId(), user2.getId());
         Collection<User> friends = friendshipDbStorage.getFriendsForUserId(1);
         assertThat(friends.size()).isEqualTo(1);
 
@@ -80,9 +80,9 @@ public class FriendshipDbStorageTest {
                 .map(User::getId)
                 .toList();
         assertThat(ids.contains(2)).isTrue();
-        friendshipDbStorage.removeFriend(1, 2);
+        friendshipDbStorage.removeFriend(user.getId(), user2.getId());
 
-        Collection<User> user1Friends = friendshipDbStorage.getFriendsForUserId(1);
+        Collection<User> user1Friends = friendshipDbStorage.getFriendsForUserId(user.getId());
         assertThat(user1Friends.isEmpty()).isTrue();
     }
 

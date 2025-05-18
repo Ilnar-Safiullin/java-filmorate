@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
@@ -13,8 +12,10 @@ import ru.yandex.practicum.filmorate.dal.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -27,14 +28,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmRowMapper.class, LikeDbStorage.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class, LikeDbStorage.class, UserDbStorage.class})
 public class LikeDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final JdbcTemplate jdbc;
     private final LikeDbStorage likeDbStorage;
+    private final UserDbStorage userDbStorage;
 
     private Film film;
     private Film film2;
+    private User user;
 
     @BeforeEach
     void setUp() {
@@ -44,6 +47,13 @@ public class LikeDbStorageTest {
         jdbc.update("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1");
         jdbc.update("DELETE FROM films");
         jdbc.update("ALTER TABLE films ALTER COLUMN film_id RESTART WITH 1");
+
+        user = new User();
+        user.setEmail("test@mail.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+        userDbStorage.addUser(user);
 
         film = new Film();
         film.setName("filmName");
@@ -72,8 +82,8 @@ public class LikeDbStorageTest {
     }
 
     @Test
-    public void testAddLike() {
-        likeDbStorage.addLikeFilm(2, 1);
+    public void testGetPopular() {
+        likeDbStorage.addLikeFilm(film2.getId(), user.getId());
         Collection<Film> mostLiked = likeDbStorage.getPopularFilms(1);
         assertThat(mostLiked.size()).isEqualTo(1);
 
@@ -85,14 +95,13 @@ public class LikeDbStorageTest {
 
     @Test
     public void testDeleteLike() {
-        likeDbStorage.addLikeFilm(2, 1);
+        likeDbStorage.addLikeFilm(film2.getId(), user.getId());
         String selectQuery = "SELECT * FROM likes";
         List<Map<String, Object>> rows = jdbc.queryForList(selectQuery);
         assertThat(rows.size()).isEqualTo(1);
 
-        likeDbStorage.deleteLikeFilm(2, 1);
+        likeDbStorage.deleteLikeFilm(film2.getId(), user.getId());
         List<Map<String, Object>> rowsAfter = jdbc.queryForList(selectQuery);
         assertThat(rowsAfter.isEmpty()).isTrue();
     }
 }
- */

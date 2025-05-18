@@ -69,7 +69,7 @@ public class FilmDbStorageTest {
 
     @Test
     public void testFindFilmById() {
-        Film film1 = filmDbStorage.getFilmById(1);
+        Film film1 = filmDbStorage.getFilmById(film.getId());
         assertThat(film1)
                 .hasFieldOrPropertyWithValue("id", 1);
     }

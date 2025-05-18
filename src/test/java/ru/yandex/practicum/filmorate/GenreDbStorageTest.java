@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class GenreDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final JdbcTemplate jdbc;
-    private GenreDbStorage genreDbStorage;
+    private final GenreDbStorage genreDbStorage;
 
     private Film film;
     private Film film2;
@@ -73,7 +72,7 @@ public class GenreDbStorageTest {
 
     @Test
     public void testFindGenreById() {
-        Genre genre = genreDbStorage.getGenreById(1);
+        Genre genre = genreDbStorage.getGenreById(film.getId());
         assertThat(genre)
                 .hasFieldOrPropertyWithValue("id", 1);
     }
@@ -93,13 +92,11 @@ public class GenreDbStorageTest {
 
     @Test
     public void testInsertInFilm_genre() {
-        Genre genre5 = new Genre();
-        genre5.setId(5);
-        Film film3 = new Film();
-        film3.setGenres(Set.of(genre5));
-        genreDbStorage.insertInFilmGenreTable(film3);
-        assertThat(film3.getGenres()).isEqualTo(genreDbStorage.getGenresForFilm(film3));
+        Genre genre1 = new Genre();
+        genre1.setId(5);
+        genre1.setName("Документальный");
+        film2.setGenres(Set.of(genre1));
+        genreDbStorage.insertInFilmGenreTable(film2);
+        assertThat(film2.getGenres()).isEqualTo(genreDbStorage.getGenresForFilm(film2));
     }
 }
-
- */
