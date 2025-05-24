@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -72,10 +72,5 @@ public class InMemoryUserStorage implements UserStorage {
     public ArrayList<User> getAllUsers() {
         log.info("Запрос на получение всех пользователей");
         return new ArrayList<>(users.values());
-    }
-
-    @Override
-    public void deleteUser(int id) {
-        users.remove(id);
     }
 }

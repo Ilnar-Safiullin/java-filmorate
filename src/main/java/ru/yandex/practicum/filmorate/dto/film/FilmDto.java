@@ -1,16 +1,21 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.film;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.Marker;
 import ru.yandex.practicum.filmorate.annotation.NotBeforeSpecificDate;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class Film {
+public class FilmDto {
 
     @NotNull(groups = Marker.OnUpdate.class)
     private Integer id;
@@ -28,23 +33,34 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительным числом", groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private Integer duration;
 
-    private Set<Integer> likes;
+    private Mpa mpa;
 
     private Set<Genre> genres = new HashSet<>();
 
-    @NotNull(message = "Рейтинг Мпа обязателен", groups = Marker.OnCreate.class)
-    private Mpa mpa;
+    private Set<Integer> likes = new HashSet<>();
 
-    public Film() {
+
+    public boolean hasName() {
+        return name != null && !name.isBlank();
     }
 
-    public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration, Set<Genre> genres, Mpa mpa) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.genres = genres;
-        this.mpa = mpa;
+    public boolean hasDescription() {
+        return description != null && !description.isBlank();
+    }
+
+    public boolean hasReleaseDate() {
+        return releaseDate != null;
+    }
+
+    public boolean hasDuration() {
+        return duration != null && duration > 0;
+    }
+
+    public boolean hasMpaId() {
+        return mpa != null;
+    }
+
+    public boolean hasGenres() {
+        return genres != null && !genres.isEmpty();
     }
 }

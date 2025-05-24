@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.annotation.Marker;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
@@ -14,7 +13,6 @@ import java.util.List;
 
 
 @Validated
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -27,24 +25,24 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         return filmService.getAllFilms();
     }
 
     @GetMapping("/{filmId}")
-    public Film findById(@PathVariable("postId") Integer filmId) {
+    public FilmDto findById(@PathVariable Integer filmId) {
         return filmService.getFilmById(filmId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+    public List<FilmDto> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getTopPopularFilms(count);
     }
 
     @PutMapping
     @Validated(Marker.OnUpdate.class)
-    public Film update(@RequestBody @Valid Film updatedFilm) {
-        return filmService.updateFilm(updatedFilm);
+    public FilmDto update(@RequestBody @Valid FilmDto filmDtoRequest) {
+        return filmService.updateFilm(filmDtoRequest);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
@@ -61,7 +59,7 @@ public class FilmController {
 
     @PostMapping
     @Validated(Marker.OnCreate.class)
-    public Film addFilm(@RequestBody @Valid Film film) {
-        return filmService.addFilm(film);
+    public FilmDto addFilm(@RequestBody @Valid FilmDto filmDtoRequest) {
+        return filmService.addFilm(filmDtoRequest);
     }
 }

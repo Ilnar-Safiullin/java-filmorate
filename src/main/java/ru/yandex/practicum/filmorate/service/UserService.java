@@ -2,77 +2,92 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserDbStorage userDbStorage;
+    private final UserMapper userMapper;
+    private final FriendshipDbStorage friendshipDbStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(@Qualifier("userDbStorage") UserDbStorage userDbStorage,
+                       UserMapper userMapper, FriendshipDbStorage friendshipDbStorage) {
+        this.userDbStorage = userDbStorage;
+        this.userMapper = userMapper;
+        this.friendshipDbStorage = friendshipDbStorage;
     }
 
     public void addFriend(Integer userId, Integer friendId) {
         log.info("Попытка добавления в друзья у пользователя с ID: {}", userId);
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+        User user = userDbStorage.getUserById(userId); //проверка что такой юзер существует
+        User friend = userDbStorage.getUserById(friendId); //проверка что такой юзер существует
         user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        friendshipDbStorage.addFriend(userId, friendId);
         log.info("Добавлен друг у пользователя с ID: {}", userId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
-        log.info("Попытка удаления друга у пользователя с ID: {}", userId);
-        userStorage.getUserById(userId).getFriends().remove(friendId);
-        userStorage.getUserById(friendId).getFriends().remove(userId);
-        log.info("Удален друг у пользователя с ID: {}", userId);
+        User user = userDbStorage.getUserById(userId); //проверка что такой юзер существует
+        User friend = userDbStorage.getUserById(friendId); //проверка что такой юзер существует
+        friendshipDbStorage.removeFriend(userId, friendId);
+        log.info("Пользователь с ID {} перестал дружить с пользователем с ID {}", userId, friendId);
     }
 
-    public Set<User> getUserFriends(Integer userID) {
-        User user = userStorage.getUserById(userID);
-        return user.getFriends().stream()
-                .map(userStorage::getUserById) // Преобразуем ID в объекты User
-                .collect(Collectors.toSet()); // Собираем результат в Set
+    public List<UserDto> getUserFriends(int userId) {
+        userDbStorage.getUserById(userId); //проверка что такой юзер существует
+        Set<User> friends = friendshipDbStorage.getFriendsForUserId(userId);
+        return friends.stream()
+                .map(userMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
-    public Set<User> getCommonFriends(Integer userId1, Integer friendId) {
-        log.info("Попытка получения общих друзей у пользователя с ID: {}", userId1);
-        Set<Integer> friendsOfUser1 = userStorage.getUserById(userId1).getFriends();
-        Set<Integer> friendsOfUser2 = userStorage.getUserById(friendId).getFriends();
-        Set<Integer> commonFriends = new HashSet<>(friendsOfUser1);
-        commonFriends.retainAll(friendsOfUser2);
-        return commonFriends.stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toSet());
+    public List<UserDto> getCommonFriends(Integer userId1, Integer friendId) { // Здесь схитрил, ато не могу правильно запрос с таблицы нормально написать на общих друзей и сделал так
+        log.info("Попытка получения общих друзей у пользoвателя с ID: {}", userId1);
+        Set<User> friendsOfUser1 = friendshipDbStorage.getFriendsForUserId(userId1);
+        Set<User> friendsOfUser2 = friendshipDbStorage.getFriendsForUserId(friendId);
+        friendsOfUser2.retainAll(friendsOfUser1);
+        return friendsOfUser2.stream()
+                .map(userMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
-    public User addUser(User user) {
-        return userStorage.addUser(user);
+    public UserDto addUser(UserDto userDtoRequest) {
+        log.info("Попытка добавления нового пользователя");
+        User user = userMapper.mapToUser(userDtoRequest);
+        user = userDbStorage.addUser(user);
+        log.info("Пользователь успешно создан: {}", user);
+        return userMapper.mapToUserDto(user);
     }
 
-    public User updateUser(User updatedUser) {
-        return userStorage.updateUser(updatedUser);
+    public UserDto updateUser(UserDto userDto) {
+        log.info("Попытка обновления пользователя");
+        User updatedUser = userDbStorage.getUserById(userDto.getId());
+        userMapper.updateFromRequest(updatedUser, userDto);
+        updatedUser = userDbStorage.updateUser(updatedUser);
+        log.info("Пользователь обновлен");
+        return userMapper.mapToUserDto(updatedUser);
     }
 
-    public User getUserById(int id) {
-        return userStorage.getUserById(id);
+    public UserDto getUserById(int id) {
+        User user = userDbStorage.getUserById(id);
+        return userMapper.mapToUserDto(user);
     }
 
-    public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
-    }
-
-    public void deleteUser(int id) {
-        userStorage.deleteUser(id);
+    public Collection<UserDto> getAllUsers() {
+        return userDbStorage.getAllUsers()
+                .stream()
+                .map(userMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 }

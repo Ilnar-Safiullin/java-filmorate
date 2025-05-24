@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -69,10 +69,5 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getAllFilms() {
         log.info("Запрос на получение всех фильмов");
         return List.copyOf(films.values());
-    }
-
-    @Override
-    public void deleteFilm(int id) {
-        films.remove(id);
     }
 }
